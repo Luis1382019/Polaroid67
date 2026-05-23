@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a9484891bea58374b8195f566567ca64
+guid: c43bb8ce186eaee4590e82277c42b227
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2548606558487222155
-    second: upscalemedia-transformed (1)_0
+      213: -2700832230382655768
+    second: CarBroken_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: upscalemedia-transformed (1)_0
+      name: CarBroken_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 2728
-        height: 1536
+        x: 342
+        y: 70
+        width: 397
+        height: 934
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 578632196d781acd0800000000000000
-      internalID: -2548606558487222155
+      spriteID: 8e6ad166567b48ad0800000000000000
+      internalID: -2700832230382655768
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      upscalemedia-transformed (1)_0: -2548606558487222155
+      CarBroken_0: -2700832230382655768
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
