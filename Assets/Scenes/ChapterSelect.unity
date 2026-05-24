@@ -468,13 +468,13 @@ MonoBehaviour:
   chapters:
   - chapterTitle: C1 Gasolinera El Venado
     sceneName: Level1
-    backgroundSprite: {fileID: -3730381673984424642, guid: d2ddebfa5383f614baaf66199f7ee0a6, type: 3}
+    backgroundSprite: {fileID: 700998954765948326, guid: d48ae25b5b84d70479df9a83ed3c5e45, type: 3}
   - chapterTitle: 'C2 Ruta Nocturna '
     sceneName: Level2
-    backgroundSprite: {fileID: 4375015425340809788, guid: 2392c9608a59e53408455a7b8fbb0d03, type: 3}
-  - chapterTitle: 'C3 Dunas '
+    backgroundSprite: {fileID: 4375015425340809788, guid: 33e1c36254efaef498d6c201f7c60abf, type: 3}
+  - chapterTitle: 'C3 Villa Ahumada '
     sceneName: Level3
-    backgroundSprite: {fileID: -4405469892512735187, guid: 2cdc18458f293374eb6c809093e7c763, type: 3}
+    backgroundSprite: {fileID: -276109571377911873, guid: 38efa1c36ef33c445a80099c06c7454a, type: 3}
   - chapterTitle: 'C4 ??? '
     sceneName: Level4
     backgroundSprite: {fileID: -5793616394178266096, guid: 1cd01ccb5c4f4754cb10fe45cefd777e, type: 3}

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DrivingIntroManager : MonoBehaviour
 {
@@ -20,29 +21,40 @@ public class DrivingIntroManager : MonoBehaviour
     [SerializeField] private float timeBetweenSounds = 1f;
 
     [Header("After Breakdown")]
-    [SerializeField] private GameObject brokenCarDialogueManager;
+    [SerializeField] private GameObject postDrivingDialogueManager;
+    [SerializeField] private DrivingDialogueSystem postDrivingDialogueSystem;
+
+    [Header("Next Scene")]
+    [SerializeField] private string nextSceneName = "Level1_GasolineraGameplay";
+    [SerializeField] private float delayBeforeNextScene = 1f;
 
     private bool hasEnded = false;
+    private bool postDialogueStarted = false;
+    private bool sceneLoadStarted = false;
 
     private void Start()
     {
         carNormal.SetActive(true);
         carBroken.SetActive(false);
 
-        if (brokenCarDialogueManager != null)
+        if (postDrivingDialogueManager != null)
         {
-            brokenCarDialogueManager.SetActive(false);
+            postDrivingDialogueManager.SetActive(false);
         }
     }
 
     private void Update()
     {
-        if (hasEnded) return;
-
-        if (dialogueSystem.DialogueFinished)
+        if (!hasEnded && dialogueSystem.DialogueFinished)
         {
             hasEnded = true;
             StartCoroutine(SlowDownAndBreakCar());
+        }
+
+        if (postDialogueStarted && !sceneLoadStarted && postDrivingDialogueSystem.DialogueFinished)
+        {
+            sceneLoadStarted = true;
+            StartCoroutine(LoadNextScene());
         }
     }
 
@@ -78,11 +90,19 @@ public class DrivingIntroManager : MonoBehaviour
             }
         }
 
-        if (brokenCarDialogueManager != null)
+        if (postDrivingDialogueManager != null)
         {
-            brokenCarDialogueManager.SetActive(true);
+            postDrivingDialogueManager.SetActive(true);
+            postDialogueStarted = true;
         }
 
         Debug.Log("Empieza el diálogo después de la avería.");
+    }
+
+    private IEnumerator LoadNextScene()
+    {
+        yield return new WaitForSeconds(delayBeforeNextScene);
+
+        SceneManager.LoadScene(nextSceneName);
     }
 }
