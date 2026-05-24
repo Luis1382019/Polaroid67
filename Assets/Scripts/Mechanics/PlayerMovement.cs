@@ -5,6 +5,12 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
 
+    [Header("Movement Limits")]
+    [SerializeField] private float minX = -3f;
+    [SerializeField] private float maxX = 3f;
+    [SerializeField] private float minY = -4f;
+    [SerializeField] private float maxY = 4f;
+
     private Rigidbody2D rb;
     private Animator animator;
 
@@ -38,6 +44,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        rb.MovePosition(rb.position + movement * moveSpeed * Time.fixedDeltaTime);
+        Vector2 newPosition = rb.position + movement * moveSpeed * Time.fixedDeltaTime;
+
+        newPosition.x = Mathf.Clamp(newPosition.x, minX, maxX);
+        newPosition.y = Mathf.Clamp(newPosition.y, minY, maxY);
+
+        rb.MovePosition(newPosition);
     }
 }

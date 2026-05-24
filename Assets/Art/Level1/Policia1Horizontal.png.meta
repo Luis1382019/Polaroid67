@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 1cd01ccb5c4f4754cb10fe45cefd777e
+guid: bdf81b76052574c46a115a9b7040dab6
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5793616394178266096
-    second: bgLevel4_0
+      213: -1407056979169751658
+    second: Policia1Horizontal_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bgLevel4_0
+      name: Policia1Horizontal_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 624
-        height: 350
+        x: 30
+        y: 440
+        width: 1026
+        height: 369
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 01cff1cd590f89fa0800000000000000
-      internalID: -5793616394178266096
+      spriteID: 69d4ad1e121297ce0800000000000000
+      internalID: -1407056979169751658
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      bgLevel4_0: -5793616394178266096
+      Policia1Horizontal_0: -1407056979169751658
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
