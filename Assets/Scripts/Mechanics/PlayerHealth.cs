@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -8,7 +10,13 @@ public class PlayerHealth : MonoBehaviour
     [Header("Game Over")]
     [SerializeField] private LoopingNewRoad roadLoop;
     [SerializeField] private RandomCarSpawner carSpawner;
+    [SerializeField] private BossCarController bossController;
+    [SerializeField] private BossVerticalMovement bossMovement;
     [SerializeField] private GameObject gameOverPanel;
+
+    [Header("Exit")]
+    [SerializeField] private string sceneToLoadOnDeath = "ChapterSelect";
+    [SerializeField] private float delayBeforeExit = 2f;
 
     private int currentHealth;
     private bool isDead = false;
@@ -41,7 +49,7 @@ public class PlayerHealth : MonoBehaviour
     {
         isDead = true;
 
-        Debug.Log("Game Over");
+        Debug.Log("GAME OVER");
 
         if (roadLoop != null)
         {
@@ -53,11 +61,32 @@ public class PlayerHealth : MonoBehaviour
             carSpawner.enabled = false;
         }
 
-        DamageCarObstacle[] cars = Object.FindObjectsByType<DamageCarObstacle>(FindObjectsInactive.Exclude);
+        if (bossController != null)
+        {
+            bossController.StopBoss();
+        }
+
+        if (bossMovement != null)
+        {
+            bossMovement.enabled = false;
+        }
+
+        DamageCarObstacle[] cars = Object.FindObjectsByType<DamageCarObstacle>(
+            FindObjectsInactive.Exclude
+        );
 
         foreach (DamageCarObstacle car in cars)
         {
-            car.enabled = false;
+            car.StopMovement();
+        }
+
+        BossBullet[] bossBullets = Object.FindObjectsByType<BossBullet>(
+            FindObjectsInactive.Exclude
+        );
+
+        foreach (BossBullet bullet in bossBullets)
+        {
+            Destroy(bullet.gameObject);
         }
 
         PlayerMovement playerMovement = GetComponent<PlayerMovement>();
@@ -71,5 +100,14 @@ public class PlayerHealth : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
         }
+
+        StartCoroutine(ExitAfterDelay());
+    }
+
+    private IEnumerator ExitAfterDelay()
+    {
+        yield return new WaitForSeconds(delayBeforeExit);
+
+        SceneManager.LoadScene(sceneToLoadOnDeath);
     }
 }

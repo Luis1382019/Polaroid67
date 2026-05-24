@@ -226,19 +226,18 @@ MonoBehaviour:
 '
   - speaker: 0
     text: "Tendremos que seguir a pie. Prepara todo. A partir de aqu\xED debemos
-      estar a 75 km. \r\n"
+      estar a 50km."
   - speaker: 1
     text: ' Es demasiado largo; no podremos resistir con este calor.
 
 '
   - speaker: 0
-    text: 'Por eso haremos varias paradas en los lugares que encontremos.
+    text: 'CUIDADO!, vienen patrullas
 
-      
 
 '
   - speaker: 0
-    text: "Vamos\u2026"
+    text: CORRE!!!
 --- !u!1 &250263046
 GameObject:
   m_ObjectHideFlags: 0
@@ -1378,7 +1377,7 @@ MonoBehaviour:
   timeBetweenSounds: 1.5
   postDrivingDialogueManager: {fileID: 188501077}
   postDrivingDialogueSystem: {fileID: 188501079}
-  nextSceneName: Level1_GasolineraGameplay
+  nextSceneName: Level2
   delayBeforeNextScene: 1
 --- !u!1 &1817152878
 GameObject:
