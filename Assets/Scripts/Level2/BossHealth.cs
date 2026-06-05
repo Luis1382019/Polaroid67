@@ -1,19 +1,33 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
+/// <summary>
+/// BossHealth — Polaroid 67 (v4)
+///
+/// Ahora cada patrulla tiene su propio HP.
+/// Al llegar a 0, avisa a BossStateMachine para avanzar de fase.
+/// La Patrulla 1 usa este script. Patrullas 2 y 3 usan PatrullaSecundaria.
+/// </summary>
 public class BossHealth : MonoBehaviour
 {
-    [SerializeField] private int maxHealth = 20;
+    [SerializeField] private int maxHealth = 30;
 
     [Header("Boss Systems")]
-    [SerializeField] private BossCarController bossCarController;
+    [SerializeField] private BossStateMachine bossStateMachine;
     [SerializeField] private BossVerticalMovement bossMovement;
 
-    [Header("Win")]
+    [Header("HP Bar (opcional)")]
+    [SerializeField] private UnityEngine.UI.Slider hpSlider;
+
+    [Header("Win (solo Fase 4)")]
     [SerializeField] private GameObject winPanel;
     [SerializeField] private string nextSceneName = "ChapterSelect";
     [SerializeField] private float delayBeforeLeaving = 2f;
+
+    [Tooltip("Marcar solo en la Fase 4 — al morir muestra el panel de victoria")]
+    [SerializeField] private bool esUltimaFase = false;
 
     private int currentHealth;
     private bool isDead = false;
@@ -22,9 +36,11 @@ public class BossHealth : MonoBehaviour
     {
         currentHealth = maxHealth;
 
-        if (winPanel != null)
+        if (winPanel != null) winPanel.SetActive(false);
+        if (hpSlider != null)
         {
-            winPanel.SetActive(false);
+            hpSlider.maxValue = maxHealth;
+            hpSlider.value = maxHealth;
         }
     }
 
@@ -33,47 +49,83 @@ public class BossHealth : MonoBehaviour
         if (isDead) return;
 
         currentHealth -= damage;
+        currentHealth = Mathf.Max(currentHealth, 0);
 
-        Debug.Log("Vida del boss: " + currentHealth);
+        if (hpSlider != null)
+            hpSlider.value = currentHealth;
+
+        if (bossStateMachine != null)
+            StartCoroutine(bossStateMachine.HitFlash());
+
+        Debug.Log($"[BossHealth] HP: {currentHealth}/{maxHealth}");
 
         if (currentHealth <= 0)
-        {
             StartCoroutine(Die());
-        }
     }
 
     private IEnumerator Die()
     {
         isDead = true;
-
-        Debug.Log("Boss derrotado");
-
-        if (bossCarController != null)
-        {
-            bossCarController.StopBoss();
-        }
+        Debug.Log("[BossHealth] Patrulla 1 derrotada — avanzando fase");
 
         if (bossMovement != null)
-        {
             bossMovement.enabled = false;
-        }
 
-        BossBullet[] bullets = Object.FindObjectsByType<BossBullet>(
-            FindObjectsInactive.Exclude
-        );
-
+        // Limpiar balas
+        BossBullet[] bullets = Object.FindObjectsByType<BossBullet>(FindObjectsInactive.Exclude);
         foreach (BossBullet bullet in bullets)
-        {
             Destroy(bullet.gameObject);
-        }
 
-        if (winPanel != null)
+        if (esUltimaFase)
         {
-            winPanel.SetActive(true);
+            // Fase 4 terminada — victoria
+            if (bossStateMachine != null)
+                bossStateMachine.OnBossDefeated();
+
+            if (winPanel != null)
+                winPanel.SetActive(true);
+
+            yield return new WaitForSeconds(delayBeforeLeaving);
+            SceneManager.LoadScene(nextSceneName);
         }
+        else
+        {
+            Debug.Log("LLAMANDO AVANZAR FASE");
 
-        yield return new WaitForSeconds(delayBeforeLeaving);
+            if (bossStateMachine != null)
+                bossStateMachine.AvanzarFase();
+        }
+    }
 
-        SceneManager.LoadScene(nextSceneName);
+    public float GetHealthRatio() => (float)currentHealth / maxHealth;
+
+    // Permite resetear el HP cuando la Patrulla 1 reaparece en Fase 4
+    public void ResetHP(int nuevoMaxHP)
+    {
+        maxHealth = nuevoMaxHP;
+        currentHealth = nuevoMaxHP;
+        isDead = false;
+
+        if (hpSlider != null)
+        {
+            hpSlider.maxValue = maxHealth;
+            hpSlider.value = maxHealth;
+        }
+    }
+
+    public void SetEsUltimaFase(bool valor)
+    {
+        esUltimaFase = valor;
+    }
+
+    public void SetSlider(Slider slider)
+    {
+        hpSlider = slider;
+
+        if (hpSlider != null)
+        {
+            hpSlider.maxValue = maxHealth;
+            hpSlider.value = currentHealth;
+        }
     }
 }

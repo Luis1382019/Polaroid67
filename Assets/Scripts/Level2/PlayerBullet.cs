@@ -18,14 +18,29 @@ public class PlayerBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Bala tocó: " + other.name);
+        // 1. Jefe Final (Fase 4 — HP compartido)
+        JefeFinal jefeFinal = other.GetComponentInParent<JefeFinal>();
+        if (jefeFinal != null)
+        {
+            jefeFinal.TakeDamage(damage);
+            Destroy(gameObject);
+            return;
+        }
 
+        // 2. Boss principal (Patrulla 1, Fases 1 y 4)
         BossHealth bossHealth = other.GetComponentInParent<BossHealth>();
-
         if (bossHealth != null)
         {
-            Debug.Log("Bala golpeó al boss");
             bossHealth.TakeDamage(damage);
+            Destroy(gameObject);
+            return;
+        }
+
+        // 3. Patrulla secundaria (Patrulla 2 y 3, Fases 2 y 3)
+        PatrullaSecundaria patrullaSecundaria = other.GetComponentInParent<PatrullaSecundaria>();
+        if (patrullaSecundaria != null)
+        {
+            patrullaSecundaria.TakeDamage(damage);
             Destroy(gameObject);
         }
     }
