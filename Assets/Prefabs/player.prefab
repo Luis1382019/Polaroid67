@@ -220,7 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772d5c27f1d7ef8438ecef94674d8df3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
-  maxHealth: 3
+  maxHealth: 5
   roadLoop: {fileID: 0}
   carSpawner: {fileID: 0}
   bossController: {fileID: 0}

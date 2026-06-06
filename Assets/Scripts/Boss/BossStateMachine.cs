@@ -96,7 +96,12 @@ public class BossStateMachine : MonoBehaviour
 
         isActive = true;
         EnterPhase(0);
-        StartCoroutine(AttackLoop());
+
+        // Entrada natural desde la derecha antes de atacar
+        if (patrullaSpawnSystem != null)
+            StartCoroutine(EntradaFase1YAtacar());
+        else
+            StartCoroutine(AttackLoop());
     }
 
     // ──────────────────────────────────────────────
@@ -107,6 +112,16 @@ public class BossStateMachine : MonoBehaviour
     /// Llamado por BossHealth o PatrullaSecundaria al morir.
     /// Avanza automáticamente a la siguiente fase.
     /// </summary>
+    private IEnumerator EntradaFase1YAtacar()
+    {
+        isTransitioning = true;
+        patrullaSpawnSystem.IniciarFase1();
+        // Esperar a que la patrulla llegue a su posición
+        yield return new WaitForSeconds(2f);
+        isTransitioning = false;
+        StartCoroutine(AttackLoop());
+    }
+
     public void AvanzarFase()
     {
         Debug.Log("AVANZAR FASE -> actual = " + currentPhaseIndex);

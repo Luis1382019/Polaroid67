@@ -71,6 +71,13 @@ public class BossHealth : MonoBehaviour
         if (bossMovement != null)
             bossMovement.enabled = false;
 
+        // Ocultar slider al morir — via CanvasGroup
+        if (hpSlider != null)
+        {
+            CanvasGroup cg = hpSlider.GetComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = 0f;
+        }
+
         // Limpiar balas
         BossBullet[] bullets = Object.FindObjectsByType<BossBullet>(FindObjectsInactive.Exclude);
         foreach (BossBullet bullet in bullets)

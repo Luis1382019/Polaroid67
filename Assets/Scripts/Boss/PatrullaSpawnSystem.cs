@@ -1,14 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-/// <summary>
-/// PatrullaSpawnSystem — Polaroid 67 (v6)
-///
-/// - Patrulla 1 sale hacia la derecha (marcha atrás) en Fase 2 y 3.
-/// - Patrullas 2/3 también salen hacia la derecha manteniendo su Y.
-/// - Fase 4: Patrulla 1 hace fade out (desvanecimiento) antes de reaparecer arriba.
-/// - Spawn siempre usa la Y de la posición de combate, nunca la Y del spawnPoint.
-/// </summary>
+
 public class PatrullaSpawnSystem : MonoBehaviour
 {
     [Header("Prefabs — Fases 2 y 3")]
@@ -16,17 +9,12 @@ public class PatrullaSpawnSystem : MonoBehaviour
     [SerializeField] private GameObject patrulla3Prefab;
 
     [Header("Prefabs — Fase 4 (Jefe Final)")]
-    [Tooltip("Prefab del centro — tiene JefeFinal con isMaster=true y PatrullaSecundaria")]
     [SerializeField] private GameObject jefeFinalCentroPrefab;
-    [Tooltip("Prefab lateral izquierdo — tiene JefeFinal con isMaster=false, sin ataques")]
     [SerializeField] private GameObject jefeFinalIzquierdaPrefab;
-    [Tooltip("Prefab lateral derecho — tiene JefeFinal con isMaster=false, sin ataques")]
     [SerializeField] private GameObject jefeFinalDerechaPrefab;
 
     [Header("Puntos de Spawn (solo entrada)")]
-    [Tooltip("Fuera de pantalla a la derecha")]
     [SerializeField] private Transform spawnPointDerecha;
-    [Tooltip("Fuera de pantalla arriba — entrada en fila Fase 4")]
     [SerializeField] private Transform spawnPointArriba;
 
     [Header("Posiciones de combate en pantalla")]
@@ -57,6 +45,7 @@ public class PatrullaSpawnSystem : MonoBehaviour
     private BossVerticalMovement bossMovimiento;
     private SpriteRenderer bossRenderer;
     private Collider2D bossCollider;
+    private CanvasGroup hpSliderCanvasGroup;
 
     private void Awake()
     {
@@ -66,10 +55,21 @@ public class PatrullaSpawnSystem : MonoBehaviour
         bossCollider = GetComponent<Collider2D>();
     }
 
+    private void Start()
+    {
+        if (hpSlider != null)
+        {
+            hpSliderCanvasGroup = hpSlider.GetComponent<CanvasGroup>();
+            if (hpSliderCanvasGroup == null)
+                hpSliderCanvasGroup = hpSlider.gameObject.AddComponent<CanvasGroup>();
+        }
+    }
+
     // ──────────────────────────────────────────────
     //  API PÚBLICA
     // ──────────────────────────────────────────────
 
+    public void IniciarFase1() { StartCoroutine(EntradaFase1()); }
     public void IniciarFase2() { StartCoroutine(TransicionFase2()); }
     public void IniciarFase3() { StartCoroutine(TransicionFase3()); }
     public void IniciarFase4() { StartCoroutine(TransicionFase4()); }
@@ -78,6 +78,27 @@ public class PatrullaSpawnSystem : MonoBehaviour
     {
         if (patrulla2Instancia != null) Destroy(patrulla2Instancia);
         if (patrulla3Instancia != null) Destroy(patrulla3Instancia);
+    }
+
+    // ──────────────────────────────────────────────
+    //  SLIDER
+    // ──────────────────────────────────────────────
+
+    private void OcultarSlider()
+    {
+        if (hpSliderCanvasGroup != null) hpSliderCanvasGroup.alpha = 0f;
+    }
+
+    private void MostrarSlider()
+    {
+        if (hpSliderCanvasGroup != null) hpSliderCanvasGroup.alpha = 1f;
+    }
+
+    private void AsignarSlider(GameObject obj)
+    {
+        if (obj == null || hpSlider == null) return;
+        PatrullaSecundaria ps = obj.GetComponent<PatrullaSecundaria>();
+        if (ps != null) ps.SetSlider(hpSlider);
     }
 
     // ──────────────────────────────────────────────
@@ -104,18 +125,34 @@ public class PatrullaSpawnSystem : MonoBehaviour
     //  TRANSICIONES
     // ──────────────────────────────────────────────
 
+    private IEnumerator EntradaFase1()
+    {
+        // Patrulla 1 empieza fuera de pantalla a la derecha
+        if (bossCollider != null) bossCollider.enabled = false;
+        if (bossMovimiento != null) bossMovimiento.enabled = false;
+        if (bossStateMachine != null) bossStateMachine.PausarAtaques(true);
+
+        patrulla1.transform.position = new Vector3(
+            spawnPointDerecha.position.x,
+            posicionPatrulla1.position.y,
+            posicionPatrulla1.position.z
+        );
+
+        // Entra hasta su posición de combate
+        yield return StartCoroutine(MoverAposicion(patrulla1, posicionPatrulla1.position, velocidadEntrada));
+
+        // Ya en posición, activar todo
+        if (bossCollider != null) bossCollider.enabled = true;
+        if (bossMovimiento != null) bossMovimiento.enabled = true;
+        if (bossStateMachine != null) bossStateMachine.PausarAtaques(false);
+    }
+
     private IEnumerator TransicionFase2()
     {
-        // Patrulla 1 para ataques y movimiento, luego sale hacia la derecha (marcha atrás)
         if (bossStateMachine != null) bossStateMachine.PausarAtaques(true);
-        // Resetear slider para la siguiente patrulla
-        if (hpSlider != null) { hpSlider.maxValue = 25; hpSlider.value = 25; }
         if (bossMovimiento != null) bossMovimiento.enabled = false;
-
-        // Desactivar collider para que no reciba daño mientras sale
         if (bossCollider != null) bossCollider.enabled = false;
 
-        // Sale hacia la derecha manteniendo su Y actual (marcha atrás)
         Vector3 salidaP1 = new Vector3(
             spawnPointDerecha.position.x + 3f,
             patrulla1.transform.position.y,
@@ -123,57 +160,42 @@ public class PatrullaSpawnSystem : MonoBehaviour
         );
         yield return StartCoroutine(MoverAposicion(patrulla1, salidaP1, velocidadSalida));
         OcultarPatrulla1();
+        OcultarSlider();
 
         yield return new WaitForSeconds(0.1f);
 
-        // Patrulla 2 entra desde la derecha con la Y correcta
         if (patrulla2Prefab != null && spawnPointDerecha != null)
         {
             Vector3 spawnPos = new Vector3(
                 spawnPointDerecha.position.x,
-                posicionPatrulla2.position.y,  // Y de combate, no la del spawnPoint
+                posicionPatrulla2.position.y,
                 spawnPointDerecha.position.z
             );
             patrulla2Instancia = Instantiate(patrulla2Prefab, spawnPos, Quaternion.identity);
-            BossHealth bh = patrulla2Instancia.GetComponent<BossHealth>();
-
-            if (bh != null)
-            {
-                bh.SetSlider(hpSlider);
-            }
             DesactivarComponentes(patrulla2Instancia);
             AsignarSlider(patrulla2Instancia);
             yield return StartCoroutine(MoverAposicion(patrulla2Instancia, posicionPatrulla2.position, velocidadEntrada));
             ActivarPatrullaSecundaria(patrulla2Instancia);
+            MostrarSlider();
         }
     }
 
     private IEnumerator TransicionFase3()
     {
-        // Patrulla 2 comienza a salir
         if (patrulla2Instancia != null)
         {
             DesactivarComponentes(patrulla2Instancia);
-
             Vector3 salidaP2 = new Vector3(
                 spawnPointDerecha.position.x,
                 patrulla2Instancia.transform.position.y,
                 patrulla2Instancia.transform.position.z
             );
-
-            StartCoroutine(
-                MoverAposicion(
-                    patrulla2Instancia,
-                    salidaP2,
-                    velocidadSalida
-                )
-            );
+            StartCoroutine(MoverAposicion(patrulla2Instancia, salidaP2, velocidadSalida));
         }
 
-        // Espera mínima
         yield return new WaitForSeconds(0.25f);
+        OcultarSlider();
 
-        // Patrulla 3 entra
         if (patrulla3Prefab != null && spawnPointDerecha != null)
         {
             Vector3 spawnPos = new Vector3(
@@ -181,41 +203,23 @@ public class PatrullaSpawnSystem : MonoBehaviour
                 posicionPatrulla3.position.y,
                 spawnPointDerecha.position.z
             );
-
-            patrulla3Instancia = Instantiate(
-                patrulla3Prefab,
-                spawnPos,
-                Quaternion.identity
-            );
-            BossHealth bh = patrulla3Instancia.GetComponent<BossHealth>();
-
-            if (bh != null)
-            {
-                bh.SetSlider(hpSlider);
-            }
+            patrulla3Instancia = Instantiate(patrulla3Prefab, spawnPos, Quaternion.identity);
             DesactivarComponentes(patrulla3Instancia);
             AsignarSlider(patrulla3Instancia);
-
-            yield return StartCoroutine(
-                MoverAposicion(
-                    patrulla3Instancia,
-                    posicionPatrulla3.position,
-                    velocidadEntrada
-                )
-            );
-
+            yield return StartCoroutine(MoverAposicion(patrulla3Instancia, posicionPatrulla3.position, velocidadEntrada));
             ActivarPatrullaSecundaria(patrulla3Instancia);
+            MostrarSlider();
         }
 
         if (patrulla2Instancia != null)
             Destroy(patrulla2Instancia);
     }
+
     private IEnumerator TransicionFase4()
     {
-        // Patrulla 3 ya salió sola (PatrullaSecundaria.SalirYDestruir)
-        // Patrulla 1 se oculta — ya no participa como objeto en Fase 4
         if (bossStateMachine != null) bossStateMachine.PausarAtaques(true);
         OcultarPatrulla1();
+        OcultarSlider();
 
         yield return new WaitForSeconds(0.8f);
 
@@ -223,67 +227,55 @@ public class PatrullaSpawnSystem : MonoBehaviour
         GameObject centro = null;
         GameObject derecha = null;
 
+        // Izquierda entra primero
         if (jefeFinalIzquierdaPrefab != null)
         {
-            izquierda = Instantiate(
-                jefeFinalIzquierdaPrefab,
-                posicionPatrulla1.position,
-                Quaternion.identity
-            );
+            Vector3 spawnIzq = new Vector3(spawnPointDerecha.position.x, posicionPatrulla1.position.y, posicionPatrulla1.position.z);
+            izquierda = Instantiate(jefeFinalIzquierdaPrefab, spawnIzq, Quaternion.identity);
+            yield return StartCoroutine(MoverAposicion(izquierda, posicionPatrulla1.position, velocidadEntrada));
         }
 
         yield return new WaitForSeconds(retardoFila);
 
+        // Derecha entra segunda
+        if (jefeFinalDerechaPrefab != null)
+        {
+            Vector3 spawnDer = new Vector3(spawnPointDerecha.position.x, posicionPatrulla3.position.y, posicionPatrulla3.position.z);
+            derecha = Instantiate(jefeFinalDerechaPrefab, spawnDer, Quaternion.identity);
+            yield return StartCoroutine(MoverAposicion(derecha, posicionPatrulla3.position, velocidadEntrada));
+        }
+
+        yield return new WaitForSeconds(retardoFila);
+
+        // Centro entra último y arranca ataques
         if (jefeFinalCentroPrefab != null)
         {
-            centro = Instantiate(
-                jefeFinalCentroPrefab,
-                posicionPatrulla2.position,
-                Quaternion.identity
-            );
-            // Asignar slider al JefeFinal y PatrullaSecundaria del centro
+            Vector3 spawnCen = new Vector3(spawnPointDerecha.position.x, posicionPatrulla2.position.y, posicionPatrulla2.position.z);
+            centro = Instantiate(jefeFinalCentroPrefab, spawnCen, Quaternion.identity);
+            // Esperar 2 frames para que Start() de JefeFinal inicialice sharedHealth
+            yield return null;
+            yield return null;
             JefeFinal jf = centro.GetComponent<JefeFinal>();
             if (jf != null) jf.SetSlider(hpSlider);
             AsignarSlider(centro);
+            yield return StartCoroutine(MoverAposicion(centro, posicionPatrulla2.position, velocidadEntrada));
+            // NO llamar Activar() — PatronFaseFinal controla los disparos
+            MostrarSlider();
         }
 
-        yield return new WaitForSeconds(retardoFila);
-
-        if (jefeFinalDerechaPrefab != null)
+        if (centro != null)
         {
-            derecha = Instantiate(
-                jefeFinalDerechaPrefab,
-                posicionPatrulla3.position,
-                Quaternion.identity
-            );
+            GameObject controlador = new GameObject("PatronFaseFinal");
+            PatronFaseFinal patron = controlador.AddComponent<PatronFaseFinal>();
+            patron.izquierda = izquierda?.GetComponent<PatrullaSecundaria>();
+            patron.centro = centro.GetComponent<PatrullaSecundaria>();
+            patron.derecha = derecha?.GetComponent<PatrullaSecundaria>();
         }
-
-        GameObject controlador =
-    new GameObject("PatronFaseFinal");
-
-        PatronFaseFinal patron =
-            controlador.AddComponent<PatronFaseFinal>();
-
-        patron.izquierda =
-            izquierda.GetComponent<PatrullaSecundaria>();
-
-        patron.centro =
-            centro.GetComponent<PatrullaSecundaria>();
-
-        patron.derecha =
-            derecha.GetComponent<PatrullaSecundaria>();
     }
 
     // ──────────────────────────────────────────────
     //  HELPERS
     // ──────────────────────────────────────────────
-
-    private void AsignarSlider(GameObject obj)
-    {
-        if (obj == null || hpSlider == null) return;
-        PatrullaSecundaria ps = obj.GetComponent<PatrullaSecundaria>();
-        if (ps != null) ps.SetSlider(hpSlider);
-    }
 
     private void DesactivarComponentes(GameObject obj)
     {
@@ -322,7 +314,6 @@ public class PatrullaSpawnSystem : MonoBehaviour
             obj.transform.position = destino;
     }
 
-    // Solo se usa en Fase 4 para la Patrulla 1
     private IEnumerator FadeOut(SpriteRenderer sr, float duration)
     {
         if (sr == null) yield break;

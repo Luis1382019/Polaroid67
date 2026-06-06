@@ -254,6 +254,7 @@ MonoBehaviour:
   spawnDerecha: {fileID: 0}
   xSalidaOffset: 100
   velocidadSalida: 7
+  hpSlider: {fileID: 0}
   spriteRenderer: {fileID: 5381138912552981370}
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashTime: 0.08
@@ -274,7 +275,8 @@ MonoBehaviour:
   winPanel: {fileID: 0}
   nextSceneName: ChapterSelect
   delayBeforeLeaving: 2
-  spriteRenderer: {fileID: 0}
+  hpSlider: {fileID: 0}
+  spriteRenderer: {fileID: 5381138912552981370}
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashTime: 0.08
 --- !u!1 &8805958680160364531

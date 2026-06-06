@@ -117,8 +117,10 @@ public class PatrullaSecundaria : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(AttackLoop());
 
+        // Solo activar movimiento si no es parte del Jefe Final (que debe estar estático)
+        bool esJefeFinal = GetComponent<JefeFinal>() != null;
         BossVerticalMovement mov = GetComponent<BossVerticalMovement>();
-        if (mov != null) mov.enabled = true;
+        if (mov != null && !esJefeFinal) mov.enabled = true;
     }
 
     public void PausarAtaques(bool pausar)
@@ -162,6 +164,13 @@ public class PatrullaSecundaria : MonoBehaviour
             spriteRenderer.color = originalColor;
 
         StopAllCoroutines();
+
+        // Ocultar slider al morir — via CanvasGroup para no romper referencias
+        if (hpSlider != null)
+        {
+            CanvasGroup cg = hpSlider.GetComponent<CanvasGroup>();
+            if (cg != null) cg.alpha = 0f;
+        }
 
         // Limpiar balas
         BossBullet[] bullets = Object.FindObjectsByType<BossBullet>(FindObjectsInactive.Exclude);
@@ -351,6 +360,20 @@ public class PatrullaSecundaria : MonoBehaviour
             angulo,
             velocidad
         );
+    }
+
+    /// <summary>
+    /// Dispara abanico en dirección fija (no apunta al jugador).
+    /// Útil para cubrir carriles sin seguir al jugador.
+    /// direccion: Vector2.left para disparar recto a la izquierda.
+    /// </summary>
+    public void DisparoAbanicoFijo(
+        int cantidadBalas,
+        float angulo,
+        float velocidad,
+        Vector2 direccion)
+    {
+        SpawnSpread(direccion.normalized, cantidadBalas, angulo, velocidad);
     }
 
     public void DisparoRafaga(

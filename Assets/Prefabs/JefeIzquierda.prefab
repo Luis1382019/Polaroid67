@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 5714231982084485721}
   - component: {fileID: 8209101454672126617}
   - component: {fileID: 6343843078213061895}
-  - component: {fileID: -2302323670595379305}
   - component: {fileID: 9172625392284957172}
+  - component: {fileID: 3171733982049551942}
   m_Layer: 0
   m_Name: JefeIzquierda
   m_TagString: Untagged
@@ -139,6 +139,8 @@ MonoBehaviour:
   moveSpeed: 6
   moveDirection: {x: -1, y: 0}
   lifeTime: 8
+  entradaOffset: 6
+  velocidadEntrada: 10
   damage: 1
   maxHealth: 1
 --- !u!61 &6343843078213061895
@@ -187,26 +189,6 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 7.5766244, y: 1.3785851}
   m_EdgeRadius: 0
---- !u!114 &-2302323670595379305
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6782213550953050713}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: df4fef035e6b0a948861588a77747d7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::JefeFinal
-  isMaster: 0
-  maxHealth: 20
-  winPanel: {fileID: 0}
-  nextSceneName: ChapterSelect
-  delayBeforeLeaving: 2
-  spriteRenderer: {fileID: 0}
-  hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
-  hitFlashTime: 0.08
 --- !u!114 &9172625392284957172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -214,7 +196,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6782213550953050713}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1559d96c1652ba343b68ab680a3bc28d, type: 3}
   m_Name: 
@@ -232,6 +214,22 @@ MonoBehaviour:
   spawnDerecha: {fileID: 0}
   xSalidaOffset: 3
   velocidadSalida: 7
+  hpSlider: {fileID: 0}
+  spriteRenderer: {fileID: 1977957549015471012}
+  hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
+  hitFlashTime: 0.08
+--- !u!114 &3171733982049551942
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6782213550953050713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ac14d94d60aadf42a0c2d2efbb0660b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::JefeLateral
   spriteRenderer: {fileID: 1977957549015471012}
   hitFlashColor: {r: 1, g: 0, b: 0, a: 1}
   hitFlashTime: 0.08

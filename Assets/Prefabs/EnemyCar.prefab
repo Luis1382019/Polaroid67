@@ -136,7 +136,10 @@ MonoBehaviour:
   moveSpeed: 6
   moveDirection: {x: -1, y: 0}
   lifeTime: 8
+  entradaOffset: 3
+  velocidadEntrada: 5
   damage: 1
+  maxHealth: 1
 --- !u!61 &6343843078213061895
 BoxCollider2D:
   m_ObjectHideFlags: 0
